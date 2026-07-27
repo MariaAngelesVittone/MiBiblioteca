@@ -491,3 +491,4 @@ $RECYCLE.BIN/
 # Test coverage output
 TestResults/
 CoverageReport/
+coverage/

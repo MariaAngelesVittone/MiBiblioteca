@@ -1,0 +1,40 @@
+name: CI
+
+# Se dispara en cada push y en cada pull request contra main - la idea de
+# integracion continua es justamente esta: validar el codigo automaticamente
+# cada vez que alguien lo cambia, sin esperar a que un humano se acuerde de
+# correr los tests a mano.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restaurar dependencias
+        run: dotnet restore
+
+      - name: Compilar (sin restaurar de nuevo)
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Correr los tests y generar coverage
+        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Subir el reporte de coverage como artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: ./coverage
