@@ -3,12 +3,21 @@ using MiBiblioteca.Application;
 using MiBiblioteca.ExternalServices;
 using MiBiblioteca.Identity;
 using MiBiblioteca.Persistence;
+using MiBiblioteca.WebAPI.Filters;
+using MiBiblioteca.WebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+// Los filtros se registran aca porque son "globales": van a aplicar a
+// TODAS las actions de TODOS los controllers, sin tener que poner
+// [ServiceFilter(...)] en cada uno.
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<LogActionFilter>();
+    options.Filters.Add<ApiExceptionFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger con el boton verde de "Authorize" para poder pegar el JWT
@@ -53,6 +62,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// El middleware de timing va antes que todo lo demas para que el
+// cronometro incluya tambien el tiempo de auth y de la action en si.
+app.UseMiddleware<RequestTimingMiddleware>();
 
 // El orden importa: primero autenticacion (quien sos), despues
 // autorizacion (que podes hacer).
