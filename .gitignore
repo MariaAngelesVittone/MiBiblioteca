@@ -487,3 +487,7 @@ $RECYCLE.BIN/
 *.db
 *.db-shm
 *.db-wal
+
+# Test coverage output
+TestResults/
+CoverageReport/
