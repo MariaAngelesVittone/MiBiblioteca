@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
-using MiBiblioteca.Application.Interfaces.Repositories;
+using Microsoft.OpenApi.Models;
+using MiBiblioteca.Application;
+using MiBiblioteca.Identity;
 using MiBiblioteca.Persistence;
-using MiBiblioteca.Persistence.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,12 +9,37 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<MiBibliotecaContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("MiBibliotecaDb")));
+// Swagger con el boton verde de "Authorize" para poder pegar el JWT
+// y seguir probando los endpoints protegidos desde la UI.
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Pegar el token con el prefijo Bearer, ej: Bearer eyJhbGciOi..."
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Cada capa registra sus propias dependencias - Program.cs no necesita
+// saber los detalles de como se arma un DbContext o un JwtTokenGenerator.
+builder.Services.AddApplicationServices();
+builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -27,6 +52,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// El orden importa: primero autenticacion (quien sos), despues
+// autorizacion (que podes hacer).
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

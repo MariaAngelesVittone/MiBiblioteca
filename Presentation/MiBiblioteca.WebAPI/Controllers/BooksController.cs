@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiBiblioteca.Application.Dto;
 using MiBiblioteca.Application.Interfaces.Repositories;
@@ -32,6 +33,7 @@ namespace MiBiblioteca.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateBookDto dto)
         {
             var existing = await _unitOfWork.Books.GetByIsbnAsync(dto.Isbn);
