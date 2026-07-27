@@ -1,10 +1,7 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiBiblioteca.Application.Dto;
-using MiBiblioteca.Application.Interfaces.Repositories;
 using MiBiblioteca.Application.Interfaces.Services;
-using MiBiblioteca.Domain.Entities;
 
 namespace MiBiblioteca.WebAPI.Controllers
 {
@@ -12,48 +9,40 @@ namespace MiBiblioteca.WebAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IBookMetadataProvider _bookMetadataProvider;
-        private readonly IMapper _mapper;
+        private readonly IBookService _bookService;
 
-        public BooksController(IUnitOfWork unitOfWork, IBookMetadataProvider bookMetadataProvider, IMapper mapper)
+        public BooksController(IBookService bookService)
         {
-            _unitOfWork = unitOfWork;
-            _bookMetadataProvider = bookMetadataProvider;
-            _mapper = mapper;
+            _bookService = bookService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var books = await _unitOfWork.Books.GetAllAsync();
-            return Ok(_mapper.Map<IEnumerable<BookResponseDto>>(books));
+            return Ok(await _bookService.GetAllAsync());
         }
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var book = await _unitOfWork.Books.GetByIdAsync(id);
+            var book = await _bookService.GetByIdAsync(id);
             if (book is null) return NotFound();
-            return Ok(_mapper.Map<BookResponseDto>(book));
+            return Ok(book);
         }
 
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateBookDto dto)
         {
-            var existing = await _unitOfWork.Books.GetByIsbnAsync(dto.Isbn);
-            if (existing is not null)
+            try
             {
-                return BadRequest($"Ya existe un libro con el ISBN {dto.Isbn}.");
+                var book = await _bookService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
             }
-
-            var book = _mapper.Map<Book>(dto);
-
-            _unitOfWork.Books.Add(book);
-            await _unitOfWork.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = book.Id }, _mapper.Map<BookResponseDto>(book));
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // En vez de tipear titulo/autor/tapa a mano, los buscamos en Open
@@ -63,31 +52,20 @@ namespace MiBiblioteca.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> CreateFromIsbn(string isbn)
         {
-            var existing = await _unitOfWork.Books.GetByIsbnAsync(isbn);
-            if (existing is not null)
+            try
             {
-                return BadRequest($"Ya existe un libro con el ISBN {isbn}.");
+                var book = await _bookService.CreateFromIsbnAsync(isbn);
+                if (book is null)
+                {
+                    return NotFound($"No se encontro informacion para el ISBN {isbn} en Open Library.");
+                }
+
+                return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
             }
-
-            var metadata = await _bookMetadataProvider.GetByIsbnAsync(isbn);
-            if (metadata is null)
+            catch (InvalidOperationException ex)
             {
-                return NotFound($"No se encontro informacion para el ISBN {isbn} en Open Library.");
+                return BadRequest(ex.Message);
             }
-
-            var book = new Book
-            {
-                Isbn = isbn,
-                Title = metadata.Title,
-                Author = metadata.Author,
-                CoverUrl = metadata.CoverUrl,
-                PublishedYear = metadata.PublishedYear
-            };
-
-            _unitOfWork.Books.Add(book);
-            await _unitOfWork.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = book.Id }, _mapper.Map<BookResponseDto>(book));
         }
     }
 }

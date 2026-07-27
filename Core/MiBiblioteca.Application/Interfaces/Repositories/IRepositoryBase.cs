@@ -12,6 +12,14 @@ namespace MiBiblioteca.Application.Interfaces.Repositories
         void Add(TEntity entity);
         void AddRange(IEnumerable<TEntity> entities);
 
+        // Las versiones sync de abajo (GetById, Get, GetList, GetAll, Count)
+        // quedan solo para completar el patron generico que muestra la
+        // catedra. En este proyecto NINGUN controller ni servicio las usa:
+        // EF Core es async de punta a punta, y llamarlas de verdad en un
+        // endpoint bloquearia un thread del pool esperando I/O de base de
+        // datos en vez de liberarlo mientras espera - con suficiente carga
+        // concurrente, eso agota el thread pool. Regla practica: en una API
+        // ASP.NET Core, siempre usar la variante *Async.
         TEntity? GetById(TId id);
         Task<TEntity?> GetByIdAsync(TId id);
 
