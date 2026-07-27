@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using MiBiblioteca.Application;
+using MiBiblioteca.ExternalServices;
 using MiBiblioteca.Identity;
 using MiBiblioteca.Persistence;
 
@@ -40,6 +41,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
+builder.Services.AddExternalServices();
 
 var app = builder.Build();
 

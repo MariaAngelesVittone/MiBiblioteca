@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\Core\MiBiblioteca.Application\MiBiblioteca.Application.csproj" />
     <ProjectReference Include="..\..\Infrastructure\MiBiblioteca.Persistence\MiBiblioteca.Persistence.csproj" />
     <ProjectReference Include="..\..\Infrastructure\MiBiblioteca.Identity\MiBiblioteca.Identity.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\MiBiblioteca.ExternalServices\MiBiblioteca.ExternalServices.csproj" />
   </ItemGroup>
 
 </Project>

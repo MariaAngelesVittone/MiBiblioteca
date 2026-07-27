@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiBiblioteca.UnitTests", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiBiblioteca.IntegrationTests", "Tests\MiBiblioteca.IntegrationTests\MiBiblioteca.IntegrationTests.csproj", "{148DB376-1237-4F2F-BADD-18C553DAE801}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiBiblioteca.ExternalServices", "Infrastructure\MiBiblioteca.ExternalServices\MiBiblioteca.ExternalServices.csproj", "{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +121,18 @@ Global
 		{148DB376-1237-4F2F-BADD-18C553DAE801}.Release|x64.Build.0 = Release|Any CPU
 		{148DB376-1237-4F2F-BADD-18C553DAE801}.Release|x86.ActiveCfg = Release|Any CPU
 		{148DB376-1237-4F2F-BADD-18C553DAE801}.Release|x86.Build.0 = Release|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Debug|x64.Build.0 = Debug|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Debug|x86.Build.0 = Debug|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Release|x64.ActiveCfg = Release|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Release|x64.Build.0 = Release|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Release|x86.ActiveCfg = Release|Any CPU
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -131,5 +145,6 @@ Global
 		{FA711538-4828-4310-98E8-9FD2BC88BA4D} = {DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}
 		{E0CD48C2-A516-439D-91D6-D6E0D5E0BBB9} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{148DB376-1237-4F2F-BADD-18C553DAE801} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{7DAB9F0F-DBC2-4D60-A7B1-32B0DC91627D} = {DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}
 	EndGlobalSection
 EndGlobal
