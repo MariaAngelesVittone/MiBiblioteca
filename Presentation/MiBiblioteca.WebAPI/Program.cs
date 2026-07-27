@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using MiBiblioteca.Application.Interfaces.Repositories;
+using MiBiblioteca.Persistence;
 using MiBiblioteca.Persistence.Context;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<MiBibliotecaContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("MiBibliotecaDb")));
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 

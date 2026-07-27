@@ -1,29 +1,58 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MiBiblioteca.Persistence.Context;
+using MiBiblioteca.Application.Dto;
+using MiBiblioteca.Application.Interfaces.Repositories;
+using MiBiblioteca.Domain.Entities;
 
 namespace MiBiblioteca.WebAPI.Controllers
 {
-    // Controller minimo solo para probar que las 4 capas estan conectadas
-    // (Domain -> Application -> Persistence -> WebAPI). En la Fase 2 esto
-    // se reemplaza por el Repository Generico, no se accede al DbContext
-    // directo desde un controller.
     [Route("api/[controller]")]
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly MiBibliotecaContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public BooksController(MiBibliotecaContext context)
+        public BooksController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var books = await _context.Books.ToListAsync();
+            var books = await _unitOfWork.Books.GetAllAsync();
             return Ok(books);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var book = await _unitOfWork.Books.GetByIdAsync(id);
+            if (book is null) return NotFound();
+            return Ok(book);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateBookDto dto)
+        {
+            var existing = await _unitOfWork.Books.GetByIsbnAsync(dto.Isbn);
+            if (existing is not null)
+            {
+                return BadRequest($"Ya existe un libro con el ISBN {dto.Isbn}.");
+            }
+
+            var book = new Book
+            {
+                Isbn = dto.Isbn,
+                Title = dto.Title,
+                Author = dto.Author,
+                CoverUrl = dto.CoverUrl,
+                PublishedYear = dto.PublishedYear
+            };
+
+            _unitOfWork.Books.Add(book);
+            await _unitOfWork.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
         }
     }
 }
