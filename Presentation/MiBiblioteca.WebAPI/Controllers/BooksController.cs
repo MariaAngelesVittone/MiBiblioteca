@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiBiblioteca.Application.Dto;
@@ -13,18 +14,20 @@ namespace MiBiblioteca.WebAPI.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBookMetadataProvider _bookMetadataProvider;
+        private readonly IMapper _mapper;
 
-        public BooksController(IUnitOfWork unitOfWork, IBookMetadataProvider bookMetadataProvider)
+        public BooksController(IUnitOfWork unitOfWork, IBookMetadataProvider bookMetadataProvider, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _bookMetadataProvider = bookMetadataProvider;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var books = await _unitOfWork.Books.GetAllAsync();
-            return Ok(books);
+            return Ok(_mapper.Map<IEnumerable<BookResponseDto>>(books));
         }
 
         [HttpGet("{id:guid}")]
@@ -32,7 +35,7 @@ namespace MiBiblioteca.WebAPI.Controllers
         {
             var book = await _unitOfWork.Books.GetByIdAsync(id);
             if (book is null) return NotFound();
-            return Ok(book);
+            return Ok(_mapper.Map<BookResponseDto>(book));
         }
 
         [HttpPost]
@@ -45,19 +48,12 @@ namespace MiBiblioteca.WebAPI.Controllers
                 return BadRequest($"Ya existe un libro con el ISBN {dto.Isbn}.");
             }
 
-            var book = new Book
-            {
-                Isbn = dto.Isbn,
-                Title = dto.Title,
-                Author = dto.Author,
-                CoverUrl = dto.CoverUrl,
-                PublishedYear = dto.PublishedYear
-            };
+            var book = _mapper.Map<Book>(dto);
 
             _unitOfWork.Books.Add(book);
             await _unitOfWork.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
+            return CreatedAtAction(nameof(GetById), new { id = book.Id }, _mapper.Map<BookResponseDto>(book));
         }
 
         // En vez de tipear titulo/autor/tapa a mano, los buscamos en Open
@@ -91,7 +87,7 @@ namespace MiBiblioteca.WebAPI.Controllers
             _unitOfWork.Books.Add(book);
             await _unitOfWork.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
+            return CreatedAtAction(nameof(GetById), new { id = book.Id }, _mapper.Map<BookResponseDto>(book));
         }
     }
 }
